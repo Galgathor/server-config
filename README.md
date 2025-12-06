@@ -6,7 +6,13 @@ Server configuration scripts and templates.
 
 ### Fish Shell + Starship Setup
 
-Run the setup script to install and configure Fish shell with Starship prompt:
+Run the setup script directly from GitHub:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Galgathor/server-config/main/setup-fish-starship.sh | bash
+```
+
+Or clone the repository and run locally:
 
 ```bash
 bash setup-fish-starship.sh
