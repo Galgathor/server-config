@@ -82,7 +82,7 @@ fi
 # 4. Download Starship template
 # ===========================
 STARSHIP_FILE="$HOME/.config/starship.toml"
-STARSHIP_TEMPLATE_URL="https://raw.githubusercontent.com/Galgathor/server-config/templates/starship.toml"
+STARSHIP_TEMPLATE_URL="https://raw.githubusercontent.com/Galgathor/server-config/main/templates/starship.toml"
 
 if [ ! -f "$STARSHIP_FILE" ]; then
     log "Downloading starship template ($TEMPLATE_NAME) for $DISTRO..."
