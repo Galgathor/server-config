@@ -12,12 +12,6 @@ Run the setup script directly from GitHub:
 curl -fsSL https://raw.githubusercontent.com/Galgathor/server-config/main/setup-fish-starship.sh | bash
 ```
 
-Or clone the repository and run locally:
-
-```bash
-bash setup-fish-starship.sh
-```
-
 This will:
 - Install Fish shell and Starship prompt
 - Configure Fish as the default shell
