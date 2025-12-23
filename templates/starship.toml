@@ -1,4 +1,5 @@
 # Nordic-darker color palette
+#060709	host
 #2e3440	user
 #3b4252	dir
 #434c5e	git
@@ -19,6 +20,7 @@
 # ---------------------------------------------------------------
 format = """
 [░▒▓](#2e3440)\
+$hostname\
 $os\
 $username\
 [](bg:#3b4252 fg:#2e3440)\
@@ -57,12 +59,19 @@ disabled = false
 show_always = true
 style_user = "bg:#2e3440"
 style_root = "bg:#9A348E"
-format = '($style)'
+format = '[$user]($style)'
+disabled = false
+
+[hostname]
+ssh_only = false
+style = "bg:#2e3440"
+style = "fg:#5e81ac"
+format = '[$hostname]($style)'
 disabled = false
 
 [os]
 style = "bg:#2e3440"
-format = "[$symbol]($style)"
+format = "[ $symbol ]($style)"
 disabled = false
 
 [directory]
@@ -165,3 +174,8 @@ error_symbol = '[ ➜](bold red)'
 [cmd_duration]
 min_time = 500
 format = ' [$duration](#6272a4)'
+
+[os.symbols]
+Ubuntu  = ""
+Arch    = ""
+Windows = "󰍲"
