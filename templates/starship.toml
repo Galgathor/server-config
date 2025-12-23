@@ -64,8 +64,7 @@ disabled = false
 
 [hostname]
 ssh_only = false
-style = "bg:#2e3440"
-style = "fg:#5e81ac"
+style = "bg:#2e3440 fg:#5e81ac"
 format = '[$hostname]($style)'
 disabled = false
 
