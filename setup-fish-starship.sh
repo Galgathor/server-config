@@ -53,9 +53,9 @@ fi
 # ===========================
 FISH_CONFIG="$HOME/.config/fish/config.fish"
 mkdir -p "$(dirname "$FISH_CONFIG")"
-if ! grep -q "set -g -x __fish_greeting" "$FISH_CONFIG" 2>/dev/null; then
+if ! grep -q "set -g fish_greeting" "$FISH_CONFIG" 2>/dev/null; then
     log "Disabling fish greeting..."
-    echo "set -g -x __fish_greeting ''" >> "$FISH_CONFIG"
+    echo "set -g fish_greeting ''" >> "$FISH_CONFIG"
 else
     log "Fish greeting already disabled"
 fi
