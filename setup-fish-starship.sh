@@ -22,7 +22,7 @@ if ! command -v fish >/dev/null 2>&1; then
     DISTRO=$(detect_distro)
     log "Installing Fish shell for $DISTRO..."
     case "$DISTRO" in
-        ubuntu|debian)
+        ubuntu)
             sudo apt-add-repository ppa:fish-shell/release-3
             sudo apt update && sudo apt install -y fish
             ;;
