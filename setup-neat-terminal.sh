@@ -101,5 +101,5 @@ SCRIPT_PATH="${BASH_SOURCE[0]}"
 log "Cleaning up setup script..."
 rm -f "$SCRIPT_PATH"
 
-log "Done! Your Raspberry Pi (or Linux PC) is now enhanced."
+log "Done! Your terminal is now enhanced."
 log "Please run: source ~/.bashrc"
