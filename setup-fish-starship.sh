@@ -6,6 +6,7 @@ set -e
 # ===========================
 log() { echo -e "\e[32m[INFO]\e[0m $1"; }
 error() { echo -e "\e[31m[ERROR]\e[0m $1"; }
+
 detect_distro() {
     if [ -f /etc/os-release ]; then
         . /etc/os-release
@@ -15,49 +16,47 @@ detect_distro() {
     fi
 }
 
-# ===========================
-# 1. Install Fish and set default shell
-# ===========================
-if ! command -v fish >/dev/null 2>&1; then
-    DISTRO=$(detect_distro)
-    log "Installing Fish shell for $DISTRO..."
-    case "$DISTRO" in
-        ubuntu)
-            sudo apt-add-repository ppa:fish-shell/release-3
-            sudo apt update && sudo apt install -y fish
-            ;;
-        arch)
-            sudo pacman -Sy --noconfirm fish
-            ;;
-        fedora)
-            sudo dnf install -y fish
-            ;;
-        *)
-            error "Unsupported distro: $DISTRO. Install fish manually."
-            ;;
-    esac
-else
-    log "Fish shell already installed"
-fi
-
-# Set fish as default shell if not already
-if [ "$SHELL" != "$(which fish)" ]; then
-    log "Setting fish as default shell..."
-    chsh -s "$(which fish)" || error "Could not change default shell. Run manually."
-else
-    log "Fish is already the default shell"
-fi
+BASH_CONFIG="$HOME/.bashrc"
+DISTRO=$(detect_distro)
 
 # ===========================
-# 2. Set Fish greeting to nothing
+# 1. Install Dependencies
 # ===========================
-FISH_CONFIG="$HOME/.config/fish/config.fish"
-mkdir -p "$(dirname "$FISH_CONFIG")"
-if ! grep -q "set -g fish_greeting" "$FISH_CONFIG" 2>/dev/null; then
-    log "Disabling fish greeting..."
-    echo "set -g fish_greeting ''" >> "$FISH_CONFIG"
+log "Installing dependencies for ble.sh and Starship..."
+case "$DISTRO" in
+    ubuntu|debian)
+        sudo apt update && sudo apt install -y git make gawk curl
+        ;;
+    arch)
+        sudo pacman -Sy --noconfirm git make gawk curl
+        ;;
+    fedora)
+        sudo dnf install -y git make gawk curl
+        ;;
+    *)
+        log "Unknown distro, please ensure git, make, and gawk are installed."
+        ;;
+esac
+
+# ===========================
+# 2. Install ble.sh (Bash Line Editor)
+# ===========================
+if [ ! -d "$HOME/.local/share/blesh" ]; then
+    log "Cloning and installing ble.sh..."
+    git clone --recursive --depth 1 https://github.com/akinomyoga/ble.sh.git
+    make -C ble.sh install PREFIX=~/.local
+    rm -rf ble.sh
 else
-    log "Fish greeting already disabled"
+    log "ble.sh already installed"
+fi
+
+# Inject ble.sh into .bashrc (Top and Bottom)
+if ! grep -q "blesh/ble.sh" "$BASH_CONFIG"; then
+    log "Adding ble.sh to $BASH_CONFIG..."
+    # Add to top
+    sed -i '1i [[ $- == *i* ]] && source ~/.local/share/blesh/ble.sh --noattach' "$BASH_CONFIG"
+    # Add to bottom
+    echo '[[ ${BLE_VERSION-} ]] && ble-attach' >> "$BASH_CONFIG"
 fi
 
 # ===========================
@@ -70,22 +69,22 @@ else
     log "Starship already installed"
 fi
 
-# Add Starship init to fish config if not present
-if ! grep -q "starship init fish" "$FISH_CONFIG"; then
-    log "Adding Starship initialization to fish config..."
-    echo "starship init fish | source" >> "$FISH_CONFIG"
-else
-    log "Starship already initialized in fish config"
+# Add Starship init for BASH
+if ! grep -q "starship init bash" "$BASH_CONFIG"; then
+    log "Adding Starship initialization to $BASH_CONFIG..."
+    echo 'eval "$(starship init bash)"' >> "$BASH_CONFIG"
 fi
 
 # ===========================
 # 4. Download Starship template
 # ===========================
-STARSHIP_FILE="$HOME/.config/starship.toml"
+STARSHIP_DIR="$HOME/.config"
+STARSHIP_FILE="$STARSHIP_DIR/starship.toml"
 STARSHIP_TEMPLATE_URL="https://raw.githubusercontent.com/Galgathor/server-config/main/templates/starship.toml"
 
+mkdir -p "$STARSHIP_DIR"
 if [ ! -f "$STARSHIP_FILE" ]; then
-    log "Downloading starship template ($TEMPLATE_NAME) for $DISTRO..."
+    log "Downloading starship template..."
     curl -fsSL "$STARSHIP_TEMPLATE_URL" -o "$STARSHIP_FILE" || error "Failed to download starship template"
 else
     log "Starship template already exists"
@@ -95,7 +94,7 @@ fi
 # 5. Delete script after execution
 # ===========================
 SCRIPT_PATH="${BASH_SOURCE[0]}"
-log "Cleaning up..."
+log "Cleaning up script..."
 rm -f "$SCRIPT_PATH"
 
-log "Setup complete! Restart your terminal or run 'fish' to start using Fish with Starship."
+log "Setup complete! Please run 'source ~/.bashrc' or restart your terminal."
