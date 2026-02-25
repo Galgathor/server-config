@@ -4,7 +4,7 @@ Server configuration scripts and templates.
 
 ## Quick Start
 
-### Fish Shell + Starship Setup
+### ble.sh + Starship Setup
 
 Cool one-liner to copy/paste for quick setup:
 
