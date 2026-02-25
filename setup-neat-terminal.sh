@@ -22,19 +22,22 @@ DISTRO=$(detect_distro)
 # ===========================
 # 1. Install Dependencies
 # ===========================
+log "Detected Distro: $DISTRO"
 log "Installing dependencies for ble.sh and Starship..."
+
 case "$DISTRO" in
-    ubuntu|debian)
+    ubuntu|debian|raspbian)
         sudo apt update && sudo apt install -y git make gawk curl
         ;;
-    arch)
+    arch|manjaro)
         sudo pacman -Sy --noconfirm git make gawk curl
         ;;
     fedora)
         sudo dnf install -y git make gawk curl
         ;;
     *)
-        log "Unknown distro, please ensure git, make, and gawk are installed."
+        log "Warning: Unknown distro. Attempting to use 'apt' as a fallback..."
+        sudo apt update && sudo apt install -y git make gawk curl || error "Could not install dependencies."
         ;;
 esac
 
@@ -42,7 +45,7 @@ esac
 # 2. Install ble.sh (Bash Line Editor)
 # ===========================
 if [ ! -d "$HOME/.local/share/blesh" ]; then
-    log "Cloning and installing ble.sh..."
+    log "Cloning and installing ble.sh (this provides Fish-like features)..."
     git clone --recursive --depth 1 https://github.com/akinomyoga/ble.sh.git
     make -C ble.sh install PREFIX=~/.local
     rm -rf ble.sh
@@ -52,10 +55,10 @@ fi
 
 # Inject ble.sh into .bashrc (Top and Bottom)
 if ! grep -q "blesh/ble.sh" "$BASH_CONFIG"; then
-    log "Adding ble.sh to $BASH_CONFIG..."
-    # Add to top
+    log "Adding ble.sh hooks to $BASH_CONFIG..."
+    # Add to top (required for keybinding interception)
     sed -i '1i [[ $- == *i* ]] && source ~/.local/share/blesh/ble.sh --noattach' "$BASH_CONFIG"
-    # Add to bottom
+    # Add to bottom (required to trigger the attach)
     echo '[[ ${BLE_VERSION-} ]] && ble-attach' >> "$BASH_CONFIG"
 fi
 
@@ -63,7 +66,8 @@ fi
 # 3. Install Starship
 # ===========================
 if ! command -v starship >/dev/null 2>&1; then
-    log "Installing Starship prompt..."
+    log "Installing Starship prompt (ARM compatible)..."
+    # The official Starship script automatically detects ARM/Raspberry Pi architecture
     curl -sS https://starship.rs/install.sh | sh -s -- -y
 else
     log "Starship already installed"
@@ -84,17 +88,18 @@ STARSHIP_TEMPLATE_URL="https://raw.githubusercontent.com/Galgathor/server-config
 
 mkdir -p "$STARSHIP_DIR"
 if [ ! -f "$STARSHIP_FILE" ]; then
-    log "Downloading starship template..."
+    log "Downloading custom Starship template..."
     curl -fsSL "$STARSHIP_TEMPLATE_URL" -o "$STARSHIP_FILE" || error "Failed to download starship template"
 else
-    log "Starship template already exists"
+    log "Starship configuration already exists at $STARSHIP_FILE"
 fi
 
 # ===========================
 # 5. Delete script after execution
 # ===========================
 SCRIPT_PATH="${BASH_SOURCE[0]}"
-log "Cleaning up script..."
+log "Cleaning up setup script..."
 rm -f "$SCRIPT_PATH"
 
-log "Setup complete! Please run 'source ~/.bashrc' or restart your terminal."
+log "Done! Your Raspberry Pi (or Linux PC) is now enhanced."
+log "Please run: source ~/.bashrc"
