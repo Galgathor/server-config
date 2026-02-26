@@ -19,6 +19,9 @@ detect_distro() {
 BASH_CONFIG="$HOME/.bashrc"
 DISTRO=$(detect_distro)
 
+# Change directory to $HOME to ensure all operations are done in the user's home directory
+cd "$HOME"
+
 # ===========================
 # 1. Install Dependencies
 # ===========================
